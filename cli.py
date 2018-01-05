@@ -31,6 +31,13 @@ import getpass
 from getpass import getpass
 
 CMD = 'pytodo> '
+COMMANDS = [
+    '/h', # help
+    '/a', # add
+    '/d', # done
+    '/r', # remove
+    '/q'  # quit
+]
 
 class Cli:
     """
@@ -44,8 +51,54 @@ class Cli:
     def __poll(self):
         """
         """
-        print('Pytodo launched !')
+        print('--- SUCCESSFULLY CONNECTED ---')
+        while True:
+            inp = input(CMD)
+            if inp.startswith('/'):
+                cmd = inp[:2]
+                if cmd in COMMANDS:
+                    if cmd == '/a':
+                        self.__task_add(inp)
+                    elif cmd == '/d':
+                        self.__task_done(inp)
+                    elif cmd == '/r':
+                        self.__task_remove(inp)
+                    elif cmd == '/h':
+                        self.__print_help()
+                    else:
+                        self.__quit_app()
+                else:
+                    print('Unhandled command type /h for help')
+            else:
+                print('Commands must start with \'/\'')
         self.__quit_app()
+
+    def __print_help(self):
+        """
+        """
+        helper = 'Available commands:\n'
+        helper+= '\t/a <task_name> --- add a new task\n'
+        helper+= '\t/d <task_name> --- pass the task to \'done\'\n'
+        helper+= '\t/r <task_name> --- delete task\n'
+        helper+= '\t/h             --- displays help\n'
+        helper+= '\t/q             --- quit\n'
+        print(helper)
+
+
+    def __task_add(self, cmd):
+        """
+        """
+        pass
+
+    def __task_done(self, cmd):
+        """
+        """
+        pass
+
+    def __task_remove(self, cmd):
+        """
+        """
+        pass
 
     def __quit_app(self):
         """
