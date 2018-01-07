@@ -27,10 +27,16 @@
 import cli
 from cli import Cli
 
+import sys
+from sys import version_info
+
 def main() :
     """
     """
     Cli()
 
 if __name__ == '__main__':
-    main()
+    if not version_info > (3, 0):
+        exit('Bad Python version, please switch to version 3 or older.')
+    else:
+        main()
