@@ -31,7 +31,7 @@ import sys
 from sys import version_info
 
 def main() :
-    """
+    """Launch the CLI
     """
     c = Cli()
     c.start()

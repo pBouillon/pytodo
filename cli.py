@@ -32,18 +32,29 @@ import getpass
 from getpass import getpass
 
 
+""" pytodo CLI input display """
 CMD_INPUT     = 'pytodo> '
+""" pytodo prefix """
 CMD_PREFIX    = '/'
 
-CMD_ADD    = '/a'
-CMD_DONE   = '/d'
-CMD_HELP   = '/h'
-CMD_LIST   = '/l'
-CMD_MODIF  = '/m'
-CMD_QUIT   = '/q'
-CMD_REMOVE = '/rm'
-CMD_RESET  = '/rs'
+""" command for add """
+CMD_ADD    = PREFIX + 'a'
+""" command for done """
+CMD_DONE   = PREFIX + 'd'
+""" command for help """
+CMD_HELP   = PREFIX + 'h'
+""" command for list """
+CMD_LIST   = PREFIX + 'l'
+""" command for modification """
+CMD_MODIF  = PREFIX + 'm'
+""" command for quit """
+CMD_QUIT   = PREFIX + 'q'
+""" command for remove """
+CMD_REMOVE = PREFIX + 'rm'
+""" command for reset """
+CMD_RESET  = PREFIX + 'rs'
 
+""" list of all commands """
 COMMANDS = [
     CMD_ADD ,
     CMD_DONE,
@@ -55,14 +66,23 @@ COMMANDS = [
     CMD_RESET
 ]
 
+""" color: reset """
 COLOR_END  = '\033[0m'
+""" color: red """
 COLOR_FAIL = '\033[91m'
+""" color: green """
 COLOR_OKGREEN = '\033[92m'
+""" color: orange """
 COLOR_WARNING = '\033[93m'
 
  
 class Cli:
-    """
+    """Reference Cli
+
+    Manage the user commands and display
+
+    Attributes:
+        __db : pytodo database handler (see DB_Handler)
     """
     def __init__(self):
         """
@@ -70,15 +90,22 @@ class Cli:
         self.__db = DB_Handler()
 
     def __cli_print(self, text, color):
-        """
+        """Format text with color
         """
         print(color + text + COLOR_END)
 
     def __log_usr(self, check=0):
-        """
+        """Ensure that the user has the good credentials
+
+        Parameters:
+            check : [optionnal] 1 if this is a verification
+                    (if 0 the user will have to type his password twice)
+
+        Returns:
+            (name, password) : if the user is connected, returns its credentials
+
         """
         name = input('Name> ')
-
         psswd = 'foo'
 
         if not check:
@@ -95,7 +122,9 @@ class Cli:
         return (name, psswd)
 
     def __poll(self):
-        """
+        """CLI display
+
+        Handle every pytodo commands and execute them
         """
         self.__cli_print('\n--- SUCCESSFULLY CONNECTED ---\n', COLOR_OKGREEN)
         aborted = 1
@@ -145,7 +174,7 @@ class Cli:
         self.__start() # restart on CMD_RESET
 
     def __print_help(self):
-        """
+        """Displays help with all commands
         """
         helper = '\nAvailable commands:\n'
         helper+= '\t- add a new task .......... ' + CMD_ADD   + ' [desc]\n'
@@ -159,7 +188,13 @@ class Cli:
         print(helper)
 
     def __task_add(self, cmd):
-        """
+        """Add a task
+
+        If the topic is provided, add it directly
+        otherwise, asks for it
+
+        Parameters:
+            cmd : user's command line
         """
         description = ''
 
@@ -173,7 +208,13 @@ class Cli:
         self.__cli_print('Task added.\n', COLOR_OKGREEN)
 
     def __task_done(self, cmd):
-        """
+        """Change task's status
+
+        Switch a task to done if only the id is provided
+        If 'undo' option is set, switch the task to 'to do'
+
+        Parameters:
+            cmd : user's command line
         """
         args = len(cmd.split())
         if args == 2:
@@ -192,7 +233,11 @@ class Cli:
         self.__cli_print('Task status changed.\n', COLOR_OKGREEN)
 
     def __task_list(self):
-        """
+        """List all tasks
+
+        Lists tasks as:
+            [ ] (id) task     if not done
+            [x] (id) task     if done
         """
         tasks = self.__db.task_list()
         if len(tasks) == 0 :
@@ -211,7 +256,10 @@ class Cli:
             print('')
 
     def __task_modif(self, cmd):
-        """
+        """Change the topic of a task
+
+        Parameters:
+            cmd : user's command line
         """
         args = len(cmd.split())
         if args < 3:
@@ -247,7 +295,14 @@ class Cli:
                 self.__cli_print('Task removed.\n', COLOR_OKGREEN)
 
     def __task_reset(self):
-        """
+        """Delete all informations
+
+        Delete all existing tasks
+        Then delete the user
+
+        Returns:
+            0 on success
+            1 on abort
         """
         self.__cli_print('Are you sure ?', COLOR_WARNING)
         
@@ -272,13 +327,18 @@ class Cli:
         return 0
 
     def __quit_app(self):
-        """
+        """Exit pytodo
+
+        Close the database and exit
         """
         self.__db.disconnect()
         exit()
 
     def start(self):
-        """
+        """ Start pytodo
+
+        If no user detected, register one
+        If one user detected, asks for authentication
         """
         if not self.__db.user_exists(): # user doest not exists
             msg = 'It seems that no users are registered \n'
