@@ -207,7 +207,7 @@ class Cli:
         else:
             task_id = cmd.split()[1]
             self.__db.task_delete(task_id)
-            self.__cli_print('Task removed.\name', OKGREEN)
+            self.__cli_print('Task removed.\n', OKGREEN)
 
     def __task_reset(self):
         """
