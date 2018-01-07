@@ -76,7 +76,7 @@ class DB_Handler:
             self.__conn.rollback()
             self.__database_abort(3, query)
 
-    def check_user(self):
+    def user_exists(self):
         """
         """
         sql = '''
@@ -96,17 +96,17 @@ class DB_Handler:
         """
         sql = '''
             SELECT count(*) 
-            FROM `USER` 
+            FROM  `USER` 
             WHERE `login` LIKE ? 
                 AND `psswd` LIKE ? ;
         '''
 
         self.__execute_query(sql, [login, password])
-        row = self.__cursor.fetchone()
+        usr = self.__cursor.fetchone()
 
-        if row == None:
+        if usr == None:
             self.__database_abort(4)
-        return int(row[0])
+        return int(usr[0])
 
     def create_base(self):
         """
@@ -148,6 +148,18 @@ class DB_Handler:
             WHERE `id` = ? ;
         '''
         self.__cursor.execute(sql, [task_id])
+
+    def task_list (self):
+        """
+        """
+        sql = '''
+            SELECT *
+            FROM `TASK` ;
+        '''
+        self.__execute_query(sql)
+        
+        tasks = self.__cursor.fetchall()
+        return tasks
 
     def task_register(self, topic):
         """
