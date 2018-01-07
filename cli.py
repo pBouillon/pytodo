@@ -241,7 +241,7 @@ class Cli:
         """
         tasks = self.__db.task_list()
         if len(tasks) == 0 :
-            print('No task planified yet, add one with ' + CMD_ADD)
+            print('No task planified yet, add one with ' + CMD_ADD + '\n')
         else:
             print('Registered task(s):')
             for task in tasks:
@@ -272,6 +272,7 @@ class Cli:
                 new_topic += sep + cmd.split()[i]
                 sep = ' '
             self.__db.task_rename(task_id, new_topic)
+            self.__cli_print('Task renamed.\n', COLOR_OKGREEN)
 
     def __task_remove(self, cmd):
         """
