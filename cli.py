@@ -171,7 +171,7 @@ class Cli:
                          COLOR_WARNING
                     )
 
-        self.__start() # restart on CMD_RESET
+        self.start() # restart on CMD_RESET
 
     def __print_help(self):
         """Displays help with all commands
