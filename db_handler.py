@@ -76,6 +76,19 @@ class DB_Handler:
             self.__conn.rollback()
             self.__database_abort(3, query)
 
+    def delete_all(self):
+        """
+        """
+        sql = '''
+            DROP TABLE `TASK` ;
+        '''
+        self.__execute_query(sql)
+        sql = '''
+            DROP TABLE `USER` ;
+        '''
+        self.__execute_query(sql)
+        self.create_base()
+
     def user_exists(self):
         """
         """

@@ -40,6 +40,7 @@ CMD_HELP   = '/h'
 CMD_LIST   = '/l'
 CMD_QUIT   = '/q'
 CMD_REMOVE = '/r'
+CMD_RESET  = '/reset'
 
 COMMANDS = [
     CMD_ADD ,
@@ -47,10 +48,18 @@ COMMANDS = [
     CMD_HELP,
     CMD_LIST,
     CMD_QUIT,
-    CMD_REMOVE
+    CMD_REMOVE,
+    CMD_RESET
 ]
 
+ENDC    = '\033[0m'
+FAIL    = '\033[91m'
+HEADER  = '\033[95m'
+OKBLUE  = '\033[94m'
+OKGREEN = '\033[92m'
+WARNING = '\033[93m'
 
+ 
 class Cli:
     """
     """
@@ -60,16 +69,45 @@ class Cli:
         self.__db = DB_Handler()
         self.__start()
 
+    def __cli_print(self, text, color):
+        """
+        """
+        print(color + text + ENDC)
+
+    def __log_usr(self, check=0):
+        """
+        """
+        name = input('Name> ')
+
+        psswd = 'foo'
+
+        if not check:
+            verif = 'bar'
+            while psswd != verif:
+                psswd = getpass('Password> ')
+                verif = getpass('Repeat password> ')
+
+                if psswd != verif:
+                    self.__cli_print('\nPasswords don\'t match', FAIL)
+        else:
+            psswd = getpass('Password> ')
+
+        return (name, psswd)
+
     def __poll(self):
         """
         """
-        print('\n--- SUCCESSFULLY CONNECTED ---\n')
+        self.__cli_print('\n--- SUCCESSFULLY CONNECTED ---\n', OKGREEN)
+        aborted = 1
+
         while True:
             inp = input(CMD_INPUT)
             if inp.startswith(CMD_PREFIX):
                 cmd = inp.split()[0]
                 if cmd in COMMANDS:
-                    if cmd == CMD_LIST :
+                    if inp == CMD_LIST :
+                        if cmd != inp :
+                            print('Listing does not required an argument')
                         self.__task_list()
                     elif cmd == CMD_ADD:
                         self.__task_add(inp)
@@ -77,23 +115,42 @@ class Cli:
                         self.__task_done(inp)
                     elif cmd == CMD_REMOVE:
                         self.__task_remove(inp)
-                    elif cmd == CMD_HELP :
+                    elif cmd == CMD_RESET:
+                        if cmd != inp :
+                            print('Reset does not required an argument')
+                        aborted = self.__task_reset()
+                        if not aborted:
+                            break
+                    elif cmd == CMD_HELP:
+                        if cmd != inp :
+                            print('Help does not required an argument')
                         self.__print_help()
-                    else:
+                    elif cmd == CMD_QUIT:
+                        if cmd != inp :
+                            print('Quit does not required an argument')
                         self.__quit_app()
                 else:
-                    print('Unhandled command type ' + CMD_HELP +' for help')
+                    self.__cli_print (
+                            'Unhandled command type ' + CMD_HELP +' for help',
+                             WARNING
+                        )
             else:
-                print('Commands must start with \'' + CMD_PREFIX + '\'')
+                self.__cli_print (
+                        'Commands must start with \'' + CMD_PREFIX + '\'',
+                         WARNING
+                    )
+
+        self.__start() # restart on CMD_RESET
 
     def __print_help(self):
         """
         """
-        helper = 'Available commands:\n'
+        helper = '\nAvailable commands:\n'
         helper+= '\t'+CMD_ADD   +' [desc] .. add a new task\n'
         helper+= '\t'+CMD_DONE  +' id ...... pass the task to \'done\'\n'
         helper+= '\t'+CMD_LIST  +' ......... list all tasks\n'
         helper+= '\t'+CMD_REMOVE+' id ...... remove the task\n'
+        helper+= '\t'+CMD_RESET +' ..... delete everything\n'
         helper+= '\t'+CMD_HELP  +' ......... displays help\n'
         helper+= '\t'+CMD_QUIT  +' ......... quit\n'
         print(helper)
@@ -111,7 +168,7 @@ class Cli:
             description = input('> ')
 
         self.__db.task_register(description)
-        print('Task added.\n')
+        self.__cli_print('Task added.\n', OKGREEN)
 
     def __task_done(self, cmd):
         """
@@ -121,7 +178,7 @@ class Cli:
         else:
             task_id = cmd.split()[1]
             self.__db.task_done(task_id)
-            print('Task status changed.\n')
+            self.__cli_print('Task status changed.\n', OKGREEN)
 
     def __task_list(self):
         """
@@ -150,13 +207,38 @@ class Cli:
         else:
             task_id = cmd.split()[1]
             self.__db.task_delete(task_id)
-            print('Task removed.\name')
+            self.__cli_print('Task removed.\name', OKGREEN)
+
+    def __task_reset(self):
+        """
+        """
+        self.__cli_print('Are you sure ?', WARNING)
+        
+        inp = -1
+        while inp not in ['y', 'n']:
+            inp = input('(y/n) > ')
+        if inp == 'n':
+            self.__cli_print('Aborted.\n', FAIL)
+            return 1
+
+        print("Please verify your identity: ")
+        name, psswd = self.__log_usr(check=1)
+
+        if not self.__db.connect(name, psswd):
+            self.__cli_print('Verification failed.\n', FAIL)
+            return 1
+
+        print('\nDeleting data...')
+        self.__db.delete_all()
+        print('Success.\n')
+
+        return 0
+
 
     def __quit_app(self):
         """
         """
         self.__db.disconnect()
-        print('--- SUCCESSFULLY DISCONNECTED ---')
         exit()
 
     def __start(self):
@@ -174,16 +256,7 @@ class Cli:
             if inp == 'y':
                 print('\nPlease enter your informations: ')
 
-                name = input('Name> ')
-
-                psswd = 'foo'
-                verif = 'bar'
-                while psswd != verif:
-                    psswd = getpass('Password> ')
-                    verif = getpass('Repeat password> ')
-
-                    if psswd != verif:
-                        print('\nPasswords don\'t match')
+                name, psswd = self.__log_usr()
 
                 self.__db.user_register(name, psswd)
 
@@ -198,6 +271,6 @@ class Cli:
                 psswd = getpass('Password: ')
                 connected = self.__db.connect(name, psswd)
                 if not connected:
-                    print('\nLogin failed.')
+                    self.__cli_print('\nLogin failed.', FAIL)
 
         self.__poll() # start the app
