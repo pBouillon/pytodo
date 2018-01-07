@@ -33,7 +33,8 @@ from sys import version_info
 def main() :
     """
     """
-    Cli()
+    c = Cli()
+    c.start()
 
 if __name__ == '__main__':
     if not version_info > (3, 0):

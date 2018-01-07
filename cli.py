@@ -25,6 +25,7 @@
 # auhtor: Pierre Bouillon [https://github.com/pBouillon]
 
 import db_handler
+from db_handler import ALL_TASKS
 from db_handler import DB_Handler
 
 import getpass
@@ -38,26 +39,26 @@ CMD_ADD    = '/a'
 CMD_DONE   = '/d'
 CMD_HELP   = '/h'
 CMD_LIST   = '/l'
+CMD_MODIF  = '/m'
 CMD_QUIT   = '/q'
-CMD_REMOVE = '/r'
-CMD_RESET  = '/reset'
+CMD_REMOVE = '/rm'
+CMD_RESET  = '/rs'
 
 COMMANDS = [
     CMD_ADD ,
     CMD_DONE,
     CMD_HELP,
     CMD_LIST,
+    CMD_MODIF,
     CMD_QUIT,
     CMD_REMOVE,
     CMD_RESET
 ]
 
-ENDC    = '\033[0m'
-FAIL    = '\033[91m'
-HEADER  = '\033[95m'
-OKBLUE  = '\033[94m'
-OKGREEN = '\033[92m'
-WARNING = '\033[93m'
+COLOR_END  = '\033[0m'
+COLOR_FAIL = '\033[91m'
+COLOR_OKGREEN = '\033[92m'
+COLOR_WARNING = '\033[93m'
 
  
 class Cli:
@@ -67,12 +68,11 @@ class Cli:
         """
         """
         self.__db = DB_Handler()
-        self.__start()
 
     def __cli_print(self, text, color):
         """
         """
-        print(color + text + ENDC)
+        print(color + text + COLOR_END)
 
     def __log_usr(self, check=0):
         """
@@ -88,7 +88,7 @@ class Cli:
                 verif = getpass('Repeat password> ')
 
                 if psswd != verif:
-                    self.__cli_print('\nPasswords don\'t match', FAIL)
+                    self.__cli_print('\nPasswords don\'t match', COLOR_FAIL)
         else:
             psswd = getpass('Password> ')
 
@@ -97,7 +97,7 @@ class Cli:
     def __poll(self):
         """
         """
-        self.__cli_print('\n--- SUCCESSFULLY CONNECTED ---\n', OKGREEN)
+        self.__cli_print('\n--- SUCCESSFULLY CONNECTED ---\n', COLOR_OKGREEN)
         aborted = 1
 
         while True:
@@ -115,6 +115,8 @@ class Cli:
                         self.__task_done(inp)
                     elif cmd == CMD_REMOVE:
                         self.__task_remove(inp)
+                    elif cmd == CMD_MODIF:
+                        self.__task_modif(inp)
                     elif cmd == CMD_RESET:
                         if cmd != inp :
                             print('Reset does not required an argument')
@@ -132,12 +134,12 @@ class Cli:
                 else:
                     self.__cli_print (
                             'Unhandled command type ' + CMD_HELP +' for help',
-                             WARNING
+                             COLOR_WARNING
                         )
             else:
                 self.__cli_print (
                         'Commands must start with \'' + CMD_PREFIX + '\'',
-                         WARNING
+                         COLOR_WARNING
                     )
 
         self.__start() # restart on CMD_RESET
@@ -146,15 +148,15 @@ class Cli:
         """
         """
         helper = '\nAvailable commands:\n'
-        helper+= '\t'+CMD_ADD   +' [desc] .. add a new task\n'
-        helper+= '\t'+CMD_DONE  +' id ...... pass the task to \'done\'\n'
-        helper+= '\t'+CMD_LIST  +' ......... list all tasks\n'
-        helper+= '\t'+CMD_REMOVE+' id ...... remove the task\n'
-        helper+= '\t'+CMD_RESET +' ..... delete everything\n'
-        helper+= '\t'+CMD_HELP  +' ......... displays help\n'
-        helper+= '\t'+CMD_QUIT  +' ......... quit\n'
+        helper+= '\t- add a new task .......... ' + CMD_ADD   + ' [desc]\n'
+        helper+= '\t- pass the task to done ... ' + CMD_DONE  + ' [undo] id\n'
+        helper+= '\t- list all tasks .......... ' + CMD_LIST  + ' \n'
+        helper+= '\t- remove task ............. ' + CMD_REMOVE+ ' all | id\n'
+        helper+= '\t- rename a task ........... ' + CMD_MODIF + ' id new_name\n'
+        helper+= '\t- reset pytodo ............ ' + CMD_RESET + '\n'
+        helper+= '\t- displays help ........... ' + CMD_HELP  + '\n'
+        helper+= '\t- quit pytodo cli ......... ' + CMD_QUIT  + '\n'
         print(helper)
-
 
     def __task_add(self, cmd):
         """
@@ -168,17 +170,26 @@ class Cli:
             description = input('> ')
 
         self.__db.task_register(description)
-        self.__cli_print('Task added.\n', OKGREEN)
+        self.__cli_print('Task added.\n', COLOR_OKGREEN)
 
     def __task_done(self, cmd):
         """
         """
-        if len(cmd.split()) < 2:
-            print('Missing parameter, see ' + CMD_HELP + '.\n')
-        else:
+        args = len(cmd.split())
+        if args == 2:
             task_id = cmd.split()[1]
             self.__db.task_done(task_id)
-            self.__cli_print('Task status changed.\n', OKGREEN)
+        elif args == 3:
+            if cmd.split()[1] == 'undo':
+                task_id = cmd.split()[2]
+                self.__db.task_done(task_id, state=0)
+            else:
+                self.__cli_print('Option: ' + cmd.split()[1] + ' not hanled.', COLOR_FAIL)
+                return
+        else:
+            print('Missing parameter, see ' + CMD_HELP + '.\n')
+            return
+        self.__cli_print('Task status changed.\n', COLOR_OKGREEN)
 
     def __task_list(self):
         """
@@ -199,33 +210,59 @@ class Cli:
                 print (task_sum)
             print('')
 
+    def __task_modif(self, cmd):
+        """
+        """
+        args = len(cmd.split())
+        if args < 3:
+            self.__cli_print('Bad arg usage.', COLOR_FAIL)
+        else:
+            task_id   = cmd.split()[1]
+            new_topic = ''
+            sep = ''
+            for i in range(2, args):
+                new_topic += sep + cmd.split()[i]
+                sep = ' '
+            self.__db.task_rename(task_id, new_topic)
+
     def __task_remove(self, cmd):
         """
         """
-        if len(cmd.split()) < 2:
+        args = len(cmd.split())
+        if args == 1:
             print('Missing parameter, see ' + CMD_HELP + '.\n')
         else:
             task_id = cmd.split()[1]
-            self.__db.task_delete(task_id)
-            self.__cli_print('Task removed.\n', OKGREEN)
+            if task_id == 'all':
+                print('Do you really want to delete all tasks?')
+                inp = -1
+                while inp not in ['y', 'n']:
+                    inp = input('(y/n) > ')
+                if inp == 'y':
+                    self.__db.task_delete(ALL_TASKS)
+                    self.__cli_print('Tasks removed.\n', COLOR_OKGREEN)
+            else:
+                task_id = cmd.split()[1]
+                self.__db.task_delete(task_id)
+                self.__cli_print('Task removed.\n', COLOR_OKGREEN)
 
     def __task_reset(self):
         """
         """
-        self.__cli_print('Are you sure ?', WARNING)
+        self.__cli_print('Are you sure ?', COLOR_WARNING)
         
         inp = -1
         while inp not in ['y', 'n']:
             inp = input('(y/n) > ')
         if inp == 'n':
-            self.__cli_print('Aborted.\n', FAIL)
+            self.__cli_print('Aborted.\n', COLOR_FAIL)
             return 1
 
         print("Please verify your identity: ")
         name, psswd = self.__log_usr(check=1)
 
         if not self.__db.connect(name, psswd):
-            self.__cli_print('Verification failed.\n', FAIL)
+            self.__cli_print('Verification failed.\n', COLOR_FAIL)
             return 1
 
         print('\nDeleting data...')
@@ -234,14 +271,13 @@ class Cli:
 
         return 0
 
-
     def __quit_app(self):
         """
         """
         self.__db.disconnect()
         exit()
 
-    def __start(self):
+    def start(self):
         """
         """
         if not self.__db.user_exists(): # user doest not exists
@@ -255,11 +291,8 @@ class Cli:
 
             if inp == 'y':
                 print('\nPlease enter your informations: ')
-
                 name, psswd = self.__log_usr()
-
                 self.__db.user_register(name, psswd)
-
             else: 
                 self.__quit_app()
 
@@ -271,6 +304,6 @@ class Cli:
                 psswd = getpass('Password: ')
                 connected = self.__db.connect(name, psswd)
                 if not connected:
-                    self.__cli_print('\nLogin failed.', FAIL)
+                    self.__cli_print('\nLogin failed.', COLOR_FAIL)
 
         self.__poll() # start the app

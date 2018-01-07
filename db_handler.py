@@ -32,6 +32,10 @@ import sys
 from sys import exit
 from sys import stderr
 
+
+ALL_TASKS = 0
+
+
 class DB_Handler:
     """
     """
@@ -146,21 +150,27 @@ class DB_Handler:
     def task_delete(self, task_id):
         """
         """
-        sql = '''
-            DELETE FROM `TASK` 
-            WHERE `id` = ? ;
-        '''
-        self.__cursor.execute(sql, [task_id])
+        if task_id == ALL_TASKS:
+            sql = '''
+                DELETE FROM `TASK` ;
+            '''
+            self.__cursor.execute(sql)
+        else:
+            sql = '''
+                DELETE FROM `TASK` 
+                WHERE `id` = ? ;
+            '''
+            self.__cursor.execute(sql, [task_id])
 
-    def task_done (self, task_id):
+    def task_done (self, task_id, state=1):
         """
         """
         sql = '''
             UPDATE `TASK` 
-            SET `done` = 1 
+            SET `done` = ? 
             WHERE `id` = ? ;
         '''
-        self.__cursor.execute(sql, [task_id])
+        self.__cursor.execute(sql, [state, task_id])
 
     def task_list (self):
         """
@@ -173,6 +183,16 @@ class DB_Handler:
         
         tasks = self.__cursor.fetchall()
         return tasks
+
+    def task_rename(self, task_id, topic):
+        """
+        """
+        sql = '''
+            UPDATE `TASK` 
+            SET `topic` = ? 
+            WHERE `id` = ? ;
+        '''
+        self.__cursor.execute(sql, [topic, task_id])
 
     def task_register(self, topic):
         """
