@@ -33,11 +33,18 @@ from sys import exit
 from sys import stderr
 
 
+""" option to handle all rows of `TASKS` """
 ALL_TASKS = 0
 
 
 class DB_Handler:
-    """
+    """Reference DB_Handler
+
+    Manipulate the sqlite database
+
+    Attributes:
+        __conn   : connection with the sqlite database
+        __cursor : cursor to manipulate rows
     """
     def __init__(self, dest='./pytodo.db'):
         """
@@ -49,7 +56,14 @@ class DB_Handler:
         self.create_base()
 
     def __database_abort(self, code, query=''):
-        """
+        """Exit with error
+
+        Exit with a specified error
+        and close the connection with the database
+
+        Parameters:
+            code  : error code
+            query : query that made the request failed
         """
         errmsg = 'Error: '
 
@@ -63,13 +77,15 @@ class DB_Handler:
 
         print(errmsg, file=stderr)
 
-        if self.__conn:
-            self.__cursor.close()
-            self.__conn.close()
+        self.disconnect()
         exit(code)
 
     def __execute_query(self, query, param=''):
-        """
+        """Execute a given query
+
+        Parameters:
+            query : sql request
+            param : parameter(s) for the request
         """
         try:
             if param:
@@ -81,7 +97,7 @@ class DB_Handler:
             self.__database_abort(3, query)
 
     def delete_all(self):
-        """
+        """Delete all datas (tasks + user)
         """
         sql = '''
             DROP TABLE `TASK` ;
@@ -94,7 +110,10 @@ class DB_Handler:
         self.create_base()
 
     def user_exists(self):
-        """
+        """Check if one user is registered
+
+        Returns:
+            Number of registered users
         """
         sql = '''
             SELECT count(*) 
@@ -109,7 +128,14 @@ class DB_Handler:
         return int(row[0])
 
     def connect(self, login, password):
-        """
+        """Log a user
+
+        Parameters:
+            login    : user's login
+            password : user's password
+
+        Returns:
+            users matching credentials login/passowrd
         """
         sql = '''
             SELECT count(*) 
@@ -126,7 +152,9 @@ class DB_Handler:
         return int(usr[0])
 
     def create_base(self):
-        """
+        """Initialize the database
+
+        Read the source file and execute it with SQLite
         """
         try:
             with open('./todo_db.sql', 'r') as s:
@@ -142,13 +170,17 @@ class DB_Handler:
         self.__execute_query(user)
 
     def disconnect(self):
+        """Close the database
         """
-        """
-        self.__cursor.close()
-        self.__conn.close()
+        if self.__conn:
+            self.__cursor.close()
+            self.__conn.close()
 
     def task_delete(self, task_id):
-        """
+        """Delete a task
+
+        Parameters:
+            task_id : id of the task to delete
         """
         if task_id == ALL_TASKS:
             sql = '''
@@ -163,7 +195,11 @@ class DB_Handler:
             self.__cursor.execute(sql, [task_id])
 
     def task_done (self, task_id, state=1):
-        """
+        """Switch a task to `state`
+
+        Parameters:
+            task_id : id of the task to switch
+            state   : state of the task (1 for done)
         """
         sql = '''
             UPDATE `TASK` 
@@ -173,7 +209,10 @@ class DB_Handler:
         self.__cursor.execute(sql, [state, task_id])
 
     def task_list (self):
-        """
+        """Gather all rows of `TASKS`
+    
+        Returns:
+            tasks: all rows as (id, topic, done)
         """
         sql = '''
             SELECT *
@@ -185,7 +224,11 @@ class DB_Handler:
         return tasks
 
     def task_rename(self, task_id, topic):
-        """
+        """Rename a task
+
+        Parameters:
+            task_id : id of the task to rename
+            topic   : new topic
         """
         sql = '''
             UPDATE `TASK` 
@@ -195,7 +238,10 @@ class DB_Handler:
         self.__cursor.execute(sql, [topic, task_id])
 
     def task_register(self, topic):
-        """
+        """Register a new task
+
+        Parameters:
+            topic : new task's topic
         """
         sql = '''
             INSERT INTO `TASK`(`topic`) 
@@ -204,7 +250,11 @@ class DB_Handler:
         self.__cursor.execute(sql, [topic])
 
     def user_register(self, login, password):
-        """
+        """Register a new user
+
+        Parameters:
+            login    : user's login
+            password : user's password
         """
         sql = '''
             INSERT INTO `USER`(`login`, `psswd`) 
