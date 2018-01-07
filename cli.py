@@ -38,21 +38,21 @@ CMD_INPUT     = 'pytodo> '
 CMD_PREFIX    = '/'
 
 """ command for add """
-CMD_ADD    = PREFIX + 'a'
+CMD_ADD    = CMD_PREFIX + 'a'
 """ command for done """
-CMD_DONE   = PREFIX + 'd'
+CMD_DONE   = CMD_PREFIX + 'd'
 """ command for help """
-CMD_HELP   = PREFIX + 'h'
+CMD_HELP   = CMD_PREFIX + 'h'
 """ command for list """
-CMD_LIST   = PREFIX + 'l'
+CMD_LIST   = CMD_PREFIX + 'l'
 """ command for modification """
-CMD_MODIF  = PREFIX + 'm'
+CMD_MODIF  = CMD_PREFIX + 'm'
 """ command for quit """
-CMD_QUIT   = PREFIX + 'q'
+CMD_QUIT   = CMD_PREFIX + 'q'
 """ command for remove """
-CMD_REMOVE = PREFIX + 'rm'
+CMD_REMOVE = CMD_PREFIX + 'rm'
 """ command for reset """
-CMD_RESET  = PREFIX + 'rs'
+CMD_RESET  = CMD_PREFIX + 'rs'
 
 """ list of all commands """
 COMMANDS = [
