@@ -1,3 +1,6 @@
 *.db
 *.sh
 __pycache__/
+build/
+dist/
+pytodo.egg*
