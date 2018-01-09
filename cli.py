@@ -89,8 +89,10 @@ COLOR_OKGREEN = '\033[92m'
 COLOR_WARNING = '\033[93m'
 
 
-""" pytodo CLI input display """
-CMD_INPUT     = 'pytodo> '
+""" pytodo CLI display """
+CMD_INPUT  = 'pytodo> '
+TASK_DONE  = '[x]'
+TASK_TO_DO = '[ ]'
 """ warnings"""
 W_NO_ARG_NEEDED = 'This command does not require any other argument'
 W_NO_ARG_PROV   = 'Missing parameter, see ' + CMD_HELP + '.'
@@ -234,8 +236,12 @@ class Cli:
         if len(cmd) > 3 :
             description = cmd[3:]
         else:
-            print('Please specify a description: ')
-            description = input('> ')
+            try:
+                print('Please specify a description: ')
+                description = input('> ')
+            except KeyboardInterrupt:
+                self.__cli_print('\nAborted.\n', COLOR_FAIL)
+                return
 
         self.__db.task_register(description)
         self.__cli_print('Task added.\n', COLOR_OKGREEN)
@@ -280,10 +286,10 @@ class Cli:
             for task in tasks:
                 task_sum = '\t'
                 if task[2] == 0:
-                    task_sum += '[ ] '
+                    task_sum += TASK_TO_DO
                 else:
-                    task_sum += '[x] '
-                task_sum += '(' + str(task[0]) + ') '
+                    task_sum += TASK_DONE
+                task_sum += ' (' + str(task[0]) + ') '
                 task_sum += task[1]
                 print (task_sum)
             print('')
@@ -338,17 +344,23 @@ class Cli:
             0 on success
             1 on abort
         """
-        self.__cli_print('Are you sure ?', COLOR_WARNING)
-        
-        inp = -1
-        while inp not in ['y', 'n']:
-            inp = input('(y/n) > ')
-        if inp == 'n':
-            self.__cli_print('Aborted.\n', COLOR_FAIL)
-            return 1
+        try:
+            self.__cli_print('Are you sure ?', COLOR_WARNING)
+            
+            inp = -1
+            while inp not in ['y', 'n']:
+                inp = input('(y/n) > ')
 
-        print("Please verify your identity: ")
-        name, psswd = self.__log_usr(check=1)
+            if inp == 'n':
+                self.__cli_print('Aborted.\n', COLOR_FAIL)
+                return 1
+
+            print("Please verify your identity: ")
+            name, psswd = self.__log_usr(check=1)
+
+        except KeyboardInterrupt:
+                self.__cli_print('\nAborted.\n', COLOR_FAIL)
+                return 1
 
         if not self.__db.connect(name, psswd):
             self.__cli_print('Verification failed.\n', COLOR_FAIL)
@@ -365,6 +377,7 @@ class Cli:
 
         Close the database and exit
         """
+        print() # prevent '^C' and path display on the same line in terminal
         self.__db.disconnect()
         exit()
 
@@ -380,8 +393,12 @@ class Cli:
             print(msg)
 
             inp = -1
-            while inp not in ['y', 'n']:
-                inp = input('(y/n) > ')
+
+            try:
+                while inp not in ['y', 'n']:
+                    inp = input('(y/n) > ')
+            except KeyboardInterrupt:
+                self.__quit_app()
 
             if inp == 'y':
                 print('\nPlease enter your informations: ')
@@ -392,12 +409,15 @@ class Cli:
 
         else: # user exists
             connected = 0
+            try:
+                while not connected:
+                    name  = input('User name: ')
+                    psswd = getpass('Password: ')
+                    connected = self.__db.connect(name, psswd)
+                    if not connected:
+                        self.__cli_print('\nLogin failed.', COLOR_FAIL)
 
-            while not connected:
-                name  = input('User name: ')
-                psswd = getpass('Password: ')
-                connected = self.__db.connect(name, psswd)
-                if not connected:
-                    self.__cli_print('\nLogin failed.', COLOR_FAIL)
+            except KeyboardInterrupt:
+                self.__quit_app()
 
         self.__poll() # start the app
