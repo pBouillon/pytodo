@@ -19,14 +19,14 @@ pytodo> _
 ```
 
 ## Options
-* [add new task](#Add)
-* [help](#Help)
-* [list all tasks](#List)
-* [quit](#Quit)
-* [remove a task](#Remove)
-* [rename a task](#Rename)
-* [reset pytodo](#Reset)
-* [toggle task status](#Toggle)
+* [add new task](#add)
+* [help](#help)
+* [list all tasks](#list)
+* [quit](#quit)
+* [remove a task](#remove)
+* [rename a task](#rename)
+* [reset pytodo](#reset)
+* [toggle task status](#toggle)
 
 ### Add
 To add a task, there is two ways:
