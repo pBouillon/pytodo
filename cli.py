@@ -98,7 +98,6 @@ W_NO_ARG_NEEDED = 'This command does not require any other argument'
 W_NO_ARG_PROV   = 'Missing parameter, see ' + CMD_HELP + '.'
 W_BAD_CMD       = 'Unhandled command type \'' + CMD_HELP_L +'\' for help'
 
-
  
 class Cli:
     """Reference Cli
@@ -219,7 +218,6 @@ class Cli:
         helper+= '\t- ' + CMD_RESET_L + '  -> ' + CMD_RESET  + ' \n'
         helper+= '\t- ' + CMD_HELP_L + '   -> ' + CMD_HELP   + ' \n'
         helper+= '\t- ' + CMD_QUIT_L + '   -> ' + CMD_QUIT   + ' \n'
-        helper+= '\n'
         print(helper)
 
     def __task_add(self, cmd):
