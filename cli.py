@@ -32,39 +32,52 @@ import getpass
 from getpass import getpass
 
 
-""" pytodo CLI input display """
-CMD_INPUT     = 'pytodo> '
-""" pytodo prefix """
-CMD_PREFIX    = '/'
+""" commands for add """
+CMD_ADD      = 'a'
+CMD_ADD_L    = 'add'
+""" commands for done """
+CMD_DONE     = 'd'
+CMD_DONE_L   = 'done'
+""" commands for help """
+CMD_HELP     = 'h'
+CMD_HELP_L   = 'help'
+""" commands for list """
+CMD_LIST     = 'l'
+CMD_LIST_L   = 'list'
+""" commands for modification """
+CMD_MODIF    = 'm'
+CMD_MODIF_L  = 'modif'
+""" commands for quit """
+CMD_QUIT     = 'q'
+CMD_QUIT_L   = 'quit'
+""" commands for remove """
+CMD_REMOVE   = 'rm'
+CMD_REMOVE_L = 'remove'
+""" commands for reset """
+CMD_RESET    = 'rs'
+CMD_RESET_L  = 'reset'
 
-""" command for add """
-CMD_ADD    = CMD_PREFIX + 'a'
-""" command for done """
-CMD_DONE   = CMD_PREFIX + 'd'
-""" command for help """
-CMD_HELP   = CMD_PREFIX + 'h'
-""" command for list """
-CMD_LIST   = CMD_PREFIX + 'l'
-""" command for modification """
-CMD_MODIF  = CMD_PREFIX + 'm'
-""" command for quit """
-CMD_QUIT   = CMD_PREFIX + 'q'
-""" command for remove """
-CMD_REMOVE = CMD_PREFIX + 'rm'
-""" command for reset """
-CMD_RESET  = CMD_PREFIX + 'rs'
 
 """ list of all commands """
 COMMANDS = [
-    CMD_ADD ,
+    CMD_ADD,
+    CMD_ADD_L,
     CMD_DONE,
+    CMD_DONE_L,
     CMD_HELP,
+    CMD_HELP_L,
     CMD_LIST,
+    CMD_LIST_L,
     CMD_MODIF,
+    CMD_MODIF_L,
     CMD_QUIT,
+    CMD_QUIT_L,
     CMD_REMOVE,
-    CMD_RESET
+    CMD_REMOVE_L,
+    CMD_RESET,
+    CMD_RESET_L 
 ]
+
 
 """ color: reset """
 COLOR_END  = '\033[0m'
@@ -74,6 +87,15 @@ COLOR_FAIL = '\033[91m'
 COLOR_OKGREEN = '\033[92m'
 """ color: orange """
 COLOR_WARNING = '\033[93m'
+
+
+""" pytodo CLI input display """
+CMD_INPUT     = 'pytodo> '
+""" warnings"""
+W_NO_ARG_NEEDED = 'This command does not require any other argument'
+W_NO_ARG_PROV   = 'Missing parameter, see ' + CMD_HELP + '.'
+W_BAD_CMD       = 'Unhandled command type \'' + CMD_HELP_L +'\' for help'
+
 
  
 class Cli:
@@ -131,60 +153,71 @@ class Cli:
 
         while True:
             inp = input(CMD_INPUT)
-            if inp.startswith(CMD_PREFIX):
-                cmd = inp.split()[0]
-                if cmd in COMMANDS:
-                    if inp == CMD_LIST :
-                        if cmd != inp :
-                            print('Listing does not required an argument')
-                        self.__task_list()
-                    elif cmd == CMD_ADD:
-                        self.__task_add(inp)
-                    elif cmd == CMD_DONE:
-                        self.__task_done(inp)
-                    elif cmd == CMD_REMOVE:
-                        self.__task_remove(inp)
-                    elif cmd == CMD_MODIF:
-                        self.__task_modif(inp)
-                    elif cmd == CMD_RESET:
-                        if cmd != inp :
-                            print('Reset does not required an argument')
-                        aborted = self.__task_reset()
-                        if not aborted:
-                            break
-                    elif cmd == CMD_HELP:
-                        if cmd != inp :
-                            print('Help does not required an argument')
-                        self.__print_help()
-                    elif cmd == CMD_QUIT:
-                        if cmd != inp :
-                            print('Quit does not required an argument')
-                        self.__quit_app()
-                else:
-                    self.__cli_print (
-                            'Unhandled command type ' + CMD_HELP +' for help',
-                             COLOR_WARNING
-                        )
+            cmd = inp.split()[0]
+
+            if cmd in COMMANDS:
+                if inp == CMD_LIST or cmd == CMD_LIST_L:
+                    if cmd != inp :
+                        print(W_NO_ARG_NEEDED)
+                    self.__task_list()
+                elif cmd == CMD_ADD or cmd == CMD_ADD_L :
+                    self.__task_add(inp)
+                elif cmd == CMD_DONE or cmd == CMD_DONE_L :
+                    self.__task_done(inp)
+                elif cmd == CMD_REMOVE or cmd == CMD_REMOVE :
+                    self.__task_remove(inp)
+                elif cmd == CMD_MODIF or cmd == CMD_MODIF_L :
+                    self.__task_modif(inp)
+                elif cmd == CMD_RESET or cmd == CMD_RESET_L :
+                    if cmd != inp :
+                        print(W_NO_ARG_NEEDED)
+                    aborted = self.__task_reset()
+                    if not aborted:
+                        break
+                elif cmd == CMD_HELP or cmd == CMD_HELP_L :
+                    if cmd != inp :
+                        print(W_NO_ARG_NEEDED)
+                    self.__print_help()
+                elif cmd == CMD_QUIT or cmd == CMD_QUIT_L:
+                    if cmd != inp :
+                        print(W_NO_ARG_NEEDED)
+                    self.__quit_app()
             else:
-                self.__cli_print (
-                        'Commands must start with \'' + CMD_PREFIX + '\'',
-                         COLOR_WARNING
-                    )
+                self.__cli_print (W_BAD_CMD, COLOR_WARNING)
 
         self.start() # restart on CMD_RESET
 
     def __print_help(self):
         """Displays help with all commands
+
+        Prints available actions and their commands
+        Prints their shortcuts
         """
-        helper = '\nAvailable commands:\n'
-        helper+= '\t- add a new task .......... ' + CMD_ADD   + ' [desc]\n'
-        helper+= '\t- pass the task to done ... ' + CMD_DONE  + ' [undo] id\n'
-        helper+= '\t- list all tasks .......... ' + CMD_LIST  + ' \n'
-        helper+= '\t- remove task ............. ' + CMD_REMOVE+ ' all | id\n'
-        helper+= '\t- rename a task ........... ' + CMD_MODIF + ' id new_name\n'
-        helper+= '\t- reset pytodo ............ ' + CMD_RESET + '\n'
-        helper+= '\t- displays help ........... ' + CMD_HELP  + '\n'
-        helper+= '\t- quit pytodo cli ......... ' + CMD_QUIT  + '\n'
+        helper = '\n'
+        helper+= 'Available commands:\n'
+        helper+= '\t- add a new task .......... ' + CMD_ADD_L
+        helper+= ' [desc]\n'
+        helper+= '\t- pass the task to done ... ' + CMD_DONE_L
+        helper+= ' [undo] id\n'
+        helper+= '\t- list all tasks .......... ' + CMD_LIST_L   + ' \n'
+        helper+= '\t- remove task ............. ' + CMD_REMOVE_L
+        helper+= ' (all | id)\n'
+        helper+= '\t- rename a task ........... ' + CMD_MODIF_L
+        helper+= ' id new_name\n'
+        helper+= '\t- reset pytodo ............ ' + CMD_RESET_L  + ' \n'
+        helper+= '\t- displays help ........... ' + CMD_HELP_L   + ' \n'
+        helper+= '\t- quit pytodo cli ......... ' + CMD_QUIT_L   + ' \n'
+        helper+= '\n'
+        helper += 'Shortcuts:\n'
+        helper+= '\t- ' + CMD_ADD_L + '    -> ' + CMD_ADD    + ' \n'
+        helper+= '\t- ' + CMD_DONE_L + '   -> ' + CMD_DONE   + ' \n'
+        helper+= '\t- ' + CMD_LIST_L + '   -> ' + CMD_LIST   + ' \n'
+        helper+= '\t- ' + CMD_REMOVE_L + ' -> ' + CMD_REMOVE + ' \n'
+        helper+= '\t- ' + CMD_MODIF_L + '  -> ' + CMD_MODIF  + ' \n'
+        helper+= '\t- ' + CMD_RESET_L + '  -> ' + CMD_RESET  + ' \n'
+        helper+= '\t- ' + CMD_HELP_L + '   -> ' + CMD_HELP   + ' \n'
+        helper+= '\t- ' + CMD_QUIT_L + '   -> ' + CMD_QUIT   + ' \n'
+        helper+= '\n'
         print(helper)
 
     def __task_add(self, cmd):
@@ -228,7 +261,7 @@ class Cli:
                 self.__cli_print('Option: ' + cmd.split()[1] + ' not hanled.', COLOR_FAIL)
                 return
         else:
-            print('Missing parameter, see ' + CMD_HELP + '.\n')
+            print(W_NO_ARG_PROV + '\n')
             return
         self.__cli_print('Task status changed.\n', COLOR_OKGREEN)
 
@@ -263,7 +296,7 @@ class Cli:
         """
         args = len(cmd.split())
         if args < 3:
-            self.__cli_print('Bad arg usage.', COLOR_FAIL)
+            print(W_NO_ARG_PROV + '\n')
         else:
             task_id   = cmd.split()[1]
             new_topic = ''
@@ -279,7 +312,7 @@ class Cli:
         """
         args = len(cmd.split())
         if args == 1:
-            print('Missing parameter, see ' + CMD_HELP + '.\n')
+            print(W_NO_ARG_PROV + '\n')
         else:
             task_id = cmd.split()[1]
             if task_id == 'all':
