@@ -154,37 +154,38 @@ class Cli:
 
         while True:
             inp = input(CMD_INPUT)
-            cmd = inp.split()[0]
 
-            if cmd in COMMANDS:
-                if inp == CMD_LIST or cmd == CMD_LIST_L:
-                    if cmd != inp :
-                        print(W_NO_ARG_NEEDED)
-                    self.__task_list()
-                elif cmd == CMD_ADD or cmd == CMD_ADD_L :
-                    self.__task_add(inp)
-                elif cmd == CMD_DONE or cmd == CMD_DONE_L :
-                    self.__task_done(inp)
-                elif cmd == CMD_REMOVE or cmd == CMD_REMOVE :
-                    self.__task_remove(inp)
-                elif cmd == CMD_MODIF or cmd == CMD_MODIF_L :
-                    self.__task_modif(inp)
-                elif cmd == CMD_RESET or cmd == CMD_RESET_L :
-                    if cmd != inp :
-                        print(W_NO_ARG_NEEDED)
-                    aborted = self.__task_reset()
-                    if not aborted:
-                        break
-                elif cmd == CMD_HELP or cmd == CMD_HELP_L :
-                    if cmd != inp :
-                        print(W_NO_ARG_NEEDED)
-                    self.__print_help()
-                elif cmd == CMD_QUIT or cmd == CMD_QUIT_L:
-                    if cmd != inp :
-                        print(W_NO_ARG_NEEDED)
-                    self.__quit_app()
-            else:
-                self.__cli_print (W_BAD_CMD, COLOR_WARNING)
+            if inp:
+                cmd = inp.split()[0]
+                if cmd in COMMANDS:
+                    if inp == CMD_LIST or cmd == CMD_LIST_L:
+                        if cmd != inp :
+                            print(W_NO_ARG_NEEDED)
+                        self.__task_list()
+                    elif cmd == CMD_ADD or cmd == CMD_ADD_L :
+                        self.__task_add(inp)
+                    elif cmd == CMD_DONE or cmd == CMD_DONE_L :
+                        self.__task_done(inp)
+                    elif cmd == CMD_REMOVE or cmd == CMD_REMOVE :
+                        self.__task_remove(inp)
+                    elif cmd == CMD_MODIF or cmd == CMD_MODIF_L :
+                        self.__task_modif(inp)
+                    elif cmd == CMD_RESET or cmd == CMD_RESET_L :
+                        if cmd != inp :
+                            print(W_NO_ARG_NEEDED)
+                        aborted = self.__task_reset()
+                        if not aborted:
+                            break
+                    elif cmd == CMD_HELP or cmd == CMD_HELP_L :
+                        if cmd != inp :
+                            print(W_NO_ARG_NEEDED)
+                        self.__print_help()
+                    elif cmd == CMD_QUIT or cmd == CMD_QUIT_L:
+                        if cmd != inp :
+                            print(W_NO_ARG_NEEDED)
+                        self.__quit_app()
+                else:
+                    self.__cli_print (W_BAD_CMD, COLOR_WARNING)
 
         self.start() # restart on CMD_RESET
 
@@ -418,4 +419,7 @@ class Cli:
             except KeyboardInterrupt:
                 self.__quit_app()
 
-        self.__poll() # start the app
+        try:
+            self.__poll() # start the app
+        except KeyboardInterrupt:
+                self.__quit_app()
