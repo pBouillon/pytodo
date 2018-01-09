@@ -119,7 +119,7 @@ No task planified yet, add one with /a
 pytodo> _
 ```
 ### Rename
-To remove one task, use `m id topic` (or `modif id topic`) where `id` is the id of the task you want to rename and `topic` its new content.
+To rename one task, use `m id topic` (or `modif id topic`) where `id` is the id of the task you want to rename and `topic` its new content.
 
 Considering the tasks in the [example for list](#List):
 ```
