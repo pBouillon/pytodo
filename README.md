@@ -130,7 +130,7 @@ pytodo> l
 Registered task(s):
 	[x] (1) task 1
 	[ ] (2) task 2
-	[ ] (3) task 3 renames
+	[ ] (3) task 3 renamed
 
 pytodo> _
 ```
