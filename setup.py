@@ -20,7 +20,7 @@ if not version_info > (3, 0):
 NAME = 'pytodo'
 DESCRIPTION = 'Little todo list in command line '
 URL = 'https://github.com/pBouillon/pytodo'
-EMAIL = 'pro.pierre.bouillon@openmailbox.org'
+EMAIL = 'pro.pierre.bouillon@protonmail.com'
 AUTHOR = 'Pierre Bouillon'
 
 REQUIRED = []
