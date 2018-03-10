@@ -22,6 +22,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+#
 # auhtor: Pierre Bouillon [https://github.com/pBouillon]
 
 import pytodo.db_handler
@@ -232,8 +233,8 @@ class Cli:
         """
         description = ''
 
-        if len(cmd) > 3 :
-            description = cmd[3:]
+        if len(cmd.split()) < 2 :
+            description = ' '.join(cmd.split()[1:])
         else:
             try:
                 print('Please specify a description: ')
