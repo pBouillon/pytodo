@@ -22,7 +22,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-# auhtor: Pierre Bouillon [https://github.com/pBouillon]
+# autor: Pierre Bouillon [https://github.com/pBouillon]
 
 import pytodo
 from pytodo import Cli
@@ -30,14 +30,19 @@ from pytodo import Cli
 import sys
 from sys import version_info
 
-def main() :
+
+EXPECTED_VERSION = 3, 0
+
+
+def main():
     """Launch the CLI
     """
     c = Cli()
     c.start()
 
+
 if __name__ == '__main__':
-    if not version_info > (3, 0):
+    if not version_info > EXPECTED_VERSION:
         exit('Bad Python version, please switch to version 3 or older.')
     else:
         main()

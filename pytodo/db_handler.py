@@ -22,7 +22,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
-# auhtor: Pierre Bouillon [https://github.com/pBouillon]
+#
+# author: Pierre Bouillon [https://github.com/pBouillon]
 
 import sqlite3
 from sqlite3 import Error
@@ -31,7 +32,6 @@ from sqlite3 import OperationalError
 import sys
 from sys import exit
 from sys import stderr
-
 
 """ option to handle all rows of `TASKS` """
 ALL_TASKS = 0
@@ -49,16 +49,17 @@ class DB_Handler:
         __conn   : connection with the sqlite database
         __cursor : cursor to manipulate rows
     """
+
     def __init__(self, dest=DB_SAVE_DEST):
         """
         """
-        self.__conn   = sqlite3.connect(dest)
+        self.__conn = sqlite3.connect(dest)
         self.__cursor = self.__conn.cursor()
         self.__conn.isolation_level = None
 
         self.create_base()
 
-    def __database_abort(self, code, query=''):
+    def __database_abort(self, code: int, query=''):
         """Exit with error
 
         Exit with a specified error
@@ -83,13 +84,15 @@ class DB_Handler:
         self.disconnect()
         exit(code)
 
-    def __execute_query(self, query, param=''):
+    def __execute_query(self, query: str, param=None):
         """Execute a given query
 
         Parameters:
             query : sql request
             param : parameter(s) for the request
         """
+        if param is None:
+            param = []
         try:
             if param:
                 self.__cursor.execute(query, param)
@@ -100,7 +103,7 @@ class DB_Handler:
             self.__database_abort(3, query)
 
     def delete_all(self):
-        """Delete all datas (tasks + user)
+        """Delete all data (tasks + user)
         """
         sql = '''
             DROP TABLE `TASK` ;
@@ -126,11 +129,11 @@ class DB_Handler:
         self.__execute_query(sql)
         row = self.__cursor.fetchone()
 
-        if row == None:
+        if not row:
             self.__database_abort(4)
         return int(row[0])
 
-    def connect(self, login, password):
+    def connect(self, login: str, password: str):
         """Log a user
 
         Parameters:
@@ -138,7 +141,7 @@ class DB_Handler:
             password : user's password
 
         Returns:
-            users matching credentials login/passowrd
+            users matching credentials login/password
         """
         sql = '''
             SELECT count(*) 
@@ -150,7 +153,7 @@ class DB_Handler:
         self.__execute_query(sql, [login, password])
         usr = self.__cursor.fetchone()
 
-        if usr == None:
+        if not usr:
             self.__database_abort(4)
         return int(usr[0])
 
@@ -167,7 +170,7 @@ class DB_Handler:
             ) ;
         '''
 
-        user= '''
+        user = '''
             CREATE TABLE IF NOT EXISTS `USER` (
                 `login`  varchar(150)  not null,
                 `psswd`  varchar(150)  not null
@@ -184,7 +187,7 @@ class DB_Handler:
             self.__cursor.close()
             self.__conn.close()
 
-    def task_delete(self, task_id):
+    def task_delete(self, task_id: int):
         """Delete a task
 
         Parameters:
@@ -202,7 +205,7 @@ class DB_Handler:
             '''
             self.__cursor.execute(sql, [task_id])
 
-    def task_done (self, task_id, state=1):
+    def task_done(self, task_id: int, state=1):
         """Switch a task to `state`
 
         Parameters:
@@ -216,7 +219,7 @@ class DB_Handler:
         '''
         self.__cursor.execute(sql, [state, task_id])
 
-    def task_list (self):
+    def task_list(self):
         """Gather all rows of `TASKS`
     
         Returns:
@@ -227,11 +230,11 @@ class DB_Handler:
             FROM `TASK` ;
         '''
         self.__execute_query(sql)
-        
+
         tasks = self.__cursor.fetchall()
         return tasks
 
-    def task_rename(self, task_id, topic):
+    def task_rename(self, task_id: int, topic: str):
         """Rename a task
 
         Parameters:
@@ -245,7 +248,7 @@ class DB_Handler:
         '''
         self.__cursor.execute(sql, [topic, task_id])
 
-    def task_register(self, topic):
+    def task_register(self, topic: str):
         """Register a new task
 
         Parameters:
@@ -257,7 +260,7 @@ class DB_Handler:
         '''
         self.__cursor.execute(sql, [topic])
 
-    def user_register(self, login, password):
+    def user_register(self, login: str, password: str):
         """Register a new user
 
         Parameters:

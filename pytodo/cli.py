@@ -23,7 +23,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 #
-# auhtor: Pierre Bouillon [https://github.com/pBouillon]
+# author: Pierre Bouillon [https://github.com/pBouillon]
 
 import pytodo.db_handler
 from pytodo.db_handler import ALL_TASKS
@@ -32,32 +32,30 @@ from pytodo.db_handler import DB_Handler
 import getpass
 from getpass import getpass
 
-
 """ commands for add """
-CMD_ADD      = 'a'
-CMD_ADD_L    = 'add'
+CMD_ADD = 'a'
+CMD_ADD_L = 'add'
 """ commands for done """
-CMD_DONE     = 'd'
-CMD_DONE_L   = 'done'
+CMD_DONE = 'd'
+CMD_DONE_L = 'done'
 """ commands for help """
-CMD_HELP     = 'h'
-CMD_HELP_L   = 'help'
+CMD_HELP = 'h'
+CMD_HELP_L = 'help'
 """ commands for list """
-CMD_LIST     = 'l'
-CMD_LIST_L   = 'list'
+CMD_LIST = 'l'
+CMD_LIST_L = 'list'
 """ commands for modification """
-CMD_MODIF    = 'm'
-CMD_MODIF_L  = 'modif'
+CMD_MODIF = 'm'
+CMD_MODIF_L = 'modif'
 """ commands for quit """
-CMD_QUIT     = 'q'
-CMD_QUIT_L   = 'quit'
+CMD_QUIT = 'q'
+CMD_QUIT_L = 'quit'
 """ commands for remove """
-CMD_REMOVE   = 'rm'
+CMD_REMOVE = 'rm'
 CMD_REMOVE_L = 'remove'
 """ commands for reset """
-CMD_RESET    = 'rs'
-CMD_RESET_L  = 'reset'
-
+CMD_RESET = 'rs'
+CMD_RESET_L = 'reset'
 
 """ list of all commands """
 COMMANDS = [
@@ -76,12 +74,11 @@ COMMANDS = [
     CMD_REMOVE,
     CMD_REMOVE_L,
     CMD_RESET,
-    CMD_RESET_L 
+    CMD_RESET_L
 ]
 
-
 """ color: reset """
-COLOR_END  = '\033[0m'
+COLOR_END = '\033[0m'
 """ color: red """
 COLOR_FAIL = '\033[91m'
 """ color: green """
@@ -89,17 +86,16 @@ COLOR_OKGREEN = '\033[92m'
 """ color: orange """
 COLOR_WARNING = '\033[93m'
 
-
 """ pytodo CLI display """
-CMD_INPUT  = 'pytodo> '
-TASK_DONE  = '[x]'
+CMD_INPUT = 'pytodo> '
+TASK_DONE = '[x]'
 TASK_TO_DO = '[ ]'
-""" warnings"""
+""" warnings """
 W_NO_ARG_NEEDED = 'This command does not require any other argument'
-W_NO_ARG_PROV   = 'Missing parameter, see ' + CMD_HELP + '.'
-W_BAD_CMD       = 'Unhandled command type \'' + CMD_HELP_L +'\' for help'
+W_NO_ARG_PROV = 'Missing parameter, see ' + CMD_HELP + '.'
+W_BAD_CMD = 'Unhandled command type \'' + CMD_HELP_L + '\' for help'
 
- 
+
 class Cli:
     """Reference Cli
 
@@ -113,10 +109,44 @@ class Cli:
         """
         self.__db = DB_Handler()
 
-    def __cli_print(self, text, color):
+    @staticmethod
+    def __cli_print(text, color):
         """Format text with color
         """
         print(color + text + COLOR_END)
+
+    @staticmethod
+    def __print_help():
+        """Displays help with all commands
+
+        Prints available actions and their commands
+        Prints their shortcuts
+        """
+        helper = '\n'
+        helper += 'Available commands:\n'
+        helper += '\t- add a new task .......... ' + CMD_ADD_L
+        helper += ' [desc]\n'
+        helper += '\t- pass the task to done ... ' + CMD_DONE_L
+        helper += ' [undo] id\n'
+        helper += '\t- list all tasks .......... ' + CMD_LIST_L + ' \n'
+        helper += '\t- remove task ............. ' + CMD_REMOVE_L
+        helper += ' (all | id)\n'
+        helper += '\t- rename a task ........... ' + CMD_MODIF_L
+        helper += ' id new_name\n'
+        helper += '\t- reset pytodo ............ ' + CMD_RESET_L + ' \n'
+        helper += '\t- displays help ........... ' + CMD_HELP_L + ' \n'
+        helper += '\t- quit pytodo cli ......... ' + CMD_QUIT_L + ' \n'
+        helper += '\n'
+        helper += 'Shortcuts:\n'
+        helper += '\t- ' + CMD_ADD_L + '    -> ' + CMD_ADD + ' \n'
+        helper += '\t- ' + CMD_DONE_L + '   -> ' + CMD_DONE + ' \n'
+        helper += '\t- ' + CMD_LIST_L + '   -> ' + CMD_LIST + ' \n'
+        helper += '\t- ' + CMD_REMOVE_L + ' -> ' + CMD_REMOVE + ' \n'
+        helper += '\t- ' + CMD_MODIF_L + '  -> ' + CMD_MODIF + ' \n'
+        helper += '\t- ' + CMD_RESET_L + '  -> ' + CMD_RESET + ' \n'
+        helper += '\t- ' + CMD_HELP_L + '   -> ' + CMD_HELP + ' \n'
+        helper += '\t- ' + CMD_QUIT_L + '   -> ' + CMD_QUIT + ' \n'
+        print(helper)
 
     def __log_usr(self, check=0):
         """Ensure that the user has the good credentials
@@ -143,7 +173,7 @@ class Cli:
         else:
             psswd = getpass('Password> ')
 
-        return (name, psswd)
+        return name, psswd
 
     def __poll(self):
         """CLI display
@@ -151,7 +181,6 @@ class Cli:
         Handle every pytodo commands and execute them
         """
         self.__cli_print('\n--- SUCCESSFULLY CONNECTED ---\n', COLOR_OKGREEN)
-        aborted = 1
 
         while True:
             inp = input(CMD_INPUT)
@@ -160,67 +189,35 @@ class Cli:
                 cmd = inp.split()[0]
                 if cmd in COMMANDS:
                     if inp == CMD_LIST or cmd == CMD_LIST_L:
-                        if cmd != inp :
+                        if cmd != inp:
                             print(W_NO_ARG_NEEDED)
                         self.__task_list()
-                    elif cmd == CMD_ADD or cmd == CMD_ADD_L :
+                    elif cmd == CMD_ADD or cmd == CMD_ADD_L:
                         self.__task_add(inp)
-                    elif cmd == CMD_DONE or cmd == CMD_DONE_L :
+                    elif cmd == CMD_DONE or cmd == CMD_DONE_L:
                         self.__task_done(inp)
-                    elif cmd == CMD_REMOVE or cmd == CMD_REMOVE :
+                    elif cmd == CMD_REMOVE or cmd == CMD_REMOVE:
                         self.__task_remove(inp)
-                    elif cmd == CMD_MODIF or cmd == CMD_MODIF_L :
+                    elif cmd == CMD_MODIF or cmd == CMD_MODIF_L:
                         self.__task_modif(inp)
-                    elif cmd == CMD_RESET or cmd == CMD_RESET_L :
-                        if cmd != inp :
+                    elif cmd == CMD_RESET or cmd == CMD_RESET_L:
+                        if cmd != inp:
                             print(W_NO_ARG_NEEDED)
                         aborted = self.__task_reset()
                         if not aborted:
                             break
-                    elif cmd == CMD_HELP or cmd == CMD_HELP_L :
-                        if cmd != inp :
+                    elif cmd == CMD_HELP or cmd == CMD_HELP_L:
+                        if cmd != inp:
                             print(W_NO_ARG_NEEDED)
                         self.__print_help()
                     elif cmd == CMD_QUIT or cmd == CMD_QUIT_L:
-                        if cmd != inp :
+                        if cmd != inp:
                             print(W_NO_ARG_NEEDED)
                         self.__quit_app()
                 else:
-                    self.__cli_print (W_BAD_CMD, COLOR_WARNING)
+                    self.__cli_print(W_BAD_CMD, COLOR_WARNING)
 
-        self.start() # restart on CMD_RESET
-
-    def __print_help(self):
-        """Displays help with all commands
-
-        Prints available actions and their commands
-        Prints their shortcuts
-        """
-        helper = '\n'
-        helper+= 'Available commands:\n'
-        helper+= '\t- add a new task .......... ' + CMD_ADD_L
-        helper+= ' [desc]\n'
-        helper+= '\t- pass the task to done ... ' + CMD_DONE_L
-        helper+= ' [undo] id\n'
-        helper+= '\t- list all tasks .......... ' + CMD_LIST_L   + ' \n'
-        helper+= '\t- remove task ............. ' + CMD_REMOVE_L
-        helper+= ' (all | id)\n'
-        helper+= '\t- rename a task ........... ' + CMD_MODIF_L
-        helper+= ' id new_name\n'
-        helper+= '\t- reset pytodo ............ ' + CMD_RESET_L  + ' \n'
-        helper+= '\t- displays help ........... ' + CMD_HELP_L   + ' \n'
-        helper+= '\t- quit pytodo cli ......... ' + CMD_QUIT_L   + ' \n'
-        helper+= '\n'
-        helper += 'Shortcuts:\n'
-        helper+= '\t- ' + CMD_ADD_L + '    -> ' + CMD_ADD    + ' \n'
-        helper+= '\t- ' + CMD_DONE_L + '   -> ' + CMD_DONE   + ' \n'
-        helper+= '\t- ' + CMD_LIST_L + '   -> ' + CMD_LIST   + ' \n'
-        helper+= '\t- ' + CMD_REMOVE_L + ' -> ' + CMD_REMOVE + ' \n'
-        helper+= '\t- ' + CMD_MODIF_L + '  -> ' + CMD_MODIF  + ' \n'
-        helper+= '\t- ' + CMD_RESET_L + '  -> ' + CMD_RESET  + ' \n'
-        helper+= '\t- ' + CMD_HELP_L + '   -> ' + CMD_HELP   + ' \n'
-        helper+= '\t- ' + CMD_QUIT_L + '   -> ' + CMD_QUIT   + ' \n'
-        print(helper)
+        self.start()  # restart on CMD_RESET
 
     def __task_add(self, cmd):
         """Add a task
@@ -231,9 +228,7 @@ class Cli:
         Parameters:
             cmd : user's command line
         """
-        description = ''
-
-        if len(cmd.split()) < 2 :
+        if len(cmd.split()) < 2:
             description = ' '.join(cmd.split()[1:])
         else:
             try:
@@ -264,7 +259,7 @@ class Cli:
                 task_id = cmd.split()[2]
                 self.__db.task_done(task_id, state=0)
             else:
-                self.__cli_print('Option: ' + cmd.split()[1] + ' not hanled.', COLOR_FAIL)
+                self.__cli_print('Option: ' + cmd.split()[1] + ' not handled.', COLOR_FAIL)
                 return
         else:
             print(W_NO_ARG_PROV + '\n')
@@ -279,8 +274,8 @@ class Cli:
             [x] (id) task     if done
         """
         tasks = self.__db.task_list()
-        if len(tasks) == 0 :
-            print('No task planified yet, add one with ' + CMD_ADD + '\n')
+        if len(tasks) == 0:
+            print('No task registered yet, add one with ' + CMD_ADD + '\n')
         else:
             print('Registered task(s):')
             for task in tasks:
@@ -291,7 +286,7 @@ class Cli:
                     task_sum += TASK_DONE
                 task_sum += ' (' + str(task[0]) + ') '
                 task_sum += task[1]
-                print (task_sum)
+                print(task_sum)
             print('')
 
     def __task_modif(self, cmd):
@@ -304,7 +299,7 @@ class Cli:
         if args < 3:
             print(W_NO_ARG_PROV + '\n')
         else:
-            task_id   = cmd.split()[1]
+            task_id = cmd.split()[1]
             new_topic = ''
             sep = ''
             for i in range(2, args):
@@ -335,7 +330,7 @@ class Cli:
                 self.__cli_print('Task removed.\n', COLOR_OKGREEN)
 
     def __task_reset(self):
-        """Delete all informations
+        """Delete all information
 
         Delete all existing tasks
         Then delete the user
@@ -346,7 +341,7 @@ class Cli:
         """
         try:
             self.__cli_print('Are you sure ?', COLOR_WARNING)
-            
+
             inp = -1
             while inp not in ['y', 'n']:
                 inp = input('(y/n) > ')
@@ -359,8 +354,8 @@ class Cli:
             name, psswd = self.__log_usr(check=1)
 
         except KeyboardInterrupt:
-                self.__cli_print('\nAborted.\n', COLOR_FAIL)
-                return 1
+            self.__cli_print('\nAborted.\n', COLOR_FAIL)
+            return 1
 
         if not self.__db.connect(name, psswd):
             self.__cli_print('Verification failed.\n', COLOR_FAIL)
@@ -377,7 +372,7 @@ class Cli:
 
         Close the database and exit
         """
-        print() # prevent '^C' and path display on the same line in terminal
+        print()  # prevent '^C' and path display on the same line in terminal
         self.__db.disconnect()
         exit()
 
@@ -387,9 +382,9 @@ class Cli:
         If no user detected, register one
         If one user detected, asks for authentication
         """
-        if not self.__db.user_exists(): # user doest not exists
+        if not self.__db.user_exists():  # user doest not exists
             msg = 'It seems that no users are registered \n'
-            msg+= 'Do you want to sign in ?'
+            msg += 'Do you want to sign in ?'
             print(msg)
 
             inp = -1
@@ -404,14 +399,14 @@ class Cli:
                 print('\nPlease enter your informations: ')
                 name, psswd = self.__log_usr()
                 self.__db.user_register(name, psswd)
-            else: 
+            else:
                 self.__quit_app()
 
-        else: # user exists
+        else:  # user exists
             connected = 0
             try:
                 while not connected:
-                    name  = input('User name: ')
+                    name = input('User name: ')
                     psswd = getpass('Password: ')
                     connected = self.__db.connect(name, psswd)
                     if not connected:
@@ -421,6 +416,6 @@ class Cli:
                 self.__quit_app()
 
         try:
-            self.__poll() # start the app
+            self.__poll()  # start the app
         except KeyboardInterrupt:
-                self.__quit_app()
+            self.__quit_app()
